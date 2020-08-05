@@ -1,17 +1,26 @@
-openapi: "3.0.1"
+openapi: "3.0.0"
 info:
   title: "Employee REST API"
   description: "Employee REST API"
   version: "3.0.0"
+  contact:
+    name: "M Ilham Hidayat"
+    url: "github.com/milhamhidayat/somer"
 servers:
   - url: "localhost:8500"
     description: "Development"
+tags:
+  - name: "Office"
+    description: "Office operation"
+  - name: "Employee"
+    description: "Employee operation"
 paths:
   "/employees":
     get:
       tags:
         - Employee
       summary: "Fetch employeee based on query param"
+      description: "Fetch employeee based on query param"
       operationId: "fetchEmployee"
       parameters:
         - $ref: "#/components/parameters/filterIDs"
@@ -20,8 +29,8 @@ paths:
         - $ref: "#/components/parameters/paginationCursor"
         - $ref: "#/components/parameters/IfNoneMatch"
         - in: "query"
-          name: "deptIds"
-          description: "Comma-separated identifier of department ids"
+          name: "officeIds"
+          description: "Comma-separated identifier of office ids"
           schema:
             type: array
             items:
@@ -42,6 +51,12 @@ paths:
               description: "Entity-Tag used for caching"
               schema:
                 type: "string"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Employee"
         "304":
           $ref: "#/components/responses/NotModified"
         "400":
@@ -50,10 +65,24 @@ paths:
       tags:
         - Employee
       summary: "Create an employee"
+      description: "Create an employee"
       operationId: "createEmployee"
+      requestBody:
+        required: true
+        content:
+          applicatin/json:
+            schema:
+              $ref: "#/components/schemas/Employee"
+            example:
+              name: "John Doe"
+              office_id: "1"
       responses:
         "201":
-          $ref: "#/components/responses/Created"
+          description: "Employee is created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
         "400":
           $ref: "#/components/responses/BadRequest"
   "/employees/{id}":
@@ -61,6 +90,7 @@ paths:
       tags:
         - Employee
       summary: "Get an employee by id"
+      description: "Get an employee by id"
       operationId: "getEmployee"
       parameters:
         - name: "id"
@@ -71,20 +101,25 @@ paths:
             type: "string"
       responses:
         "200":
-          description: "The employee is found"
+          description: "The employee was found"
           headers:
             ETag:
               schema:
                 type: "string"
               description: "Entity-tag used for caching"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
         "304":
           $ref: "#/components/responses/NotModified"
         "404":
-          description: "#/components/responses/NotFound"
+          $ref: "#/components/responses/NotFound"
     put:
       tags:
         - Employee
       summary: "Update an employee"
+      description: "Update an employee"
       operationId: "updateEmployee"
       parameters:
         - name: "id"
@@ -93,9 +128,22 @@ paths:
           description: "ID of an employee to be updated"
           schema:
             type: "string"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Employee"
+            example:
+              name: "dinamo"
+              office_id: "1"
       responses:
         "200":
           description: "Employee succesfully updated"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
         "400":
           $ref: "#/components/responses/BadRequest"
         "404":
@@ -104,6 +152,7 @@ paths:
       tags:
         - Employee
       summary: "Delete an employee"
+      description: "Delete an employee"
       operationId: "deleteEmployee"
       parameters:
         - name: "id"
@@ -115,6 +164,148 @@ paths:
       responses:
         "204":
           description: "Employee succesfully deleted"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  "/offices":
+    get:
+      tags:
+        - Office
+      summary: "Fetch offices based on query param"
+      description: "Fetch offices based on query param"
+      operationId: "fetchOffices"
+      parameters:
+        - $ref: "#/components/parameters/filterIDs"
+        - $ref: "#/components/parameters/filterKeyword"
+        - $ref: "#/components/parameters/paginationNum"
+        - $ref: "#/components/parameters/paginationCursor"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: "Return all offices based on the filter"
+          headers:
+            X-Cursor:
+              description: "Cursor used for pagination"
+              schema:
+                type: "string"
+            ETag:
+              description: "Entity-Tag used for caching"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Office"
+        "304":
+          $ref: "#/components/responses/NotModified"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+    post:
+      tags:
+        - Office
+      summary: "Create an office"
+      description: "Create an office"
+      operationId: "createOffice"
+      requestBody:
+        required: true
+        content:
+          applicatin/json:
+            schema:
+              $ref: "#/components/schemas/Office"
+            example:
+              name: "dinamo"
+              address: "Jakarta Selatan"
+      responses:
+        "201":
+          description: "Office is created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Office"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  "/offices/{id}":
+    get:
+      tags:
+        - Office
+      summary: "Get an office by id"
+      description: "Get an office by id"
+      operationId: "getOffice"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "ID of an office want to get"
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "The office was found"
+          headers:
+            ETag:
+              schema:
+                type: "string"
+              description: "Entity-tag used for caching"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Office'
+        "304":
+          $ref: "#/components/responses/NotModified"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags:
+        - Office
+      summary: "Update an office"
+      description: "Update an office"
+      operationId: "updateOffice"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "ID of an office to be updated"
+          schema:
+            type: "string"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Office"
+            example:
+              name: "dinamo"
+              address: "Jakarta Selatan"
+      responses:
+        "200":
+          description: "Office succesfully updated"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Office'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags:
+        - Office
+      summary: "Delete an office"
+      description: "Delete an office"
+      operationId: "deleteOffice"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "ID of an office to be deleted"
+          schema:
+            type: "string"
+      responses:
+        "204":
+          description: "Office succesfully deleted"
         "400":
           $ref: "#/components/responses/BadRequest"
         "404":
@@ -171,4 +362,38 @@ components:
       description: "Not found"
     Created:
       description: "Created"
-
+  schemas:
+    Office:
+      type: "object"
+      description: "Office object attribute"
+      properties:
+        id:
+          type: "string"
+          example: "1"
+          description: "Office id"
+        name:
+          type: "string"
+          example: "dinamo"
+          description: "Office name"
+        address:
+          type: "string"
+          example: "Jakarta Selatan"
+          description: "Address name"
+      required:
+        - name
+        - address
+    Employee:
+      type: "object"
+      description: "Employee object attribute"
+      properties:
+        id:
+          type: "string"
+          example: "1"
+          description: "Employee id"
+        name:
+          type: "string"
+          example: "John Doe"
+          description: "Employee name"
+        office_id:
+          type: "string"
+          example: "1"
