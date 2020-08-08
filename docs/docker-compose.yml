@@ -1,0 +1,11 @@
+version: '3'
+services:
+  somer-mock:
+    image: danielgtaylor/apisprout
+    container_name: somer-mock
+    ports:
+      - 8008:8000
+    volumes:
+      - ./openapi.yaml:/openapi.yaml
+    entrypoint: /usr/local/bin/apisprout /openapi.yaml
+
